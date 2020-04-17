@@ -1,0 +1,27 @@
+{
+  "name": "shamir-implementation",
+  "version": "1.0.0",
+  "description": "Implementation of Shamir's Secret Sharing",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ar-Sibi/Shamirs-Secret-Sharing.git"
+  },
+  "author": "A.R.Sibi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Ar-Sibi/Shamirs-Secret-Sharing/issues"
+  },
+  "homepage": "https://github.com/Ar-Sibi/Shamirs-Secret-Sharing#readme",
+  "dependencies": {
+    "big-integer": "^1.6.48",
+    "biguint-format": "^1.0.2",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "random-bigint": "0.0.1"
+  }
+}
