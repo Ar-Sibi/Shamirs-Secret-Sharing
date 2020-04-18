@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Home</title>
+    <script>
+        function openCity(evt, cityName) {
+            // Declare all variables
+            var i, tabcontent, tablinks;
+
+            // Get all elements with class="tabcontent" and hide them
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            // Get all elements with class="tablinks" and remove the class "active"
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            // Show the current tab, and add an "active" class to the button that opened the tab
+            document.getElementById(cityName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        function populateInputFields() {
+            let numFields = document.getElementById('num-shares-d').value;
+            let doc = document.getElementById('share-inputs');
+            doc.innerHTML = '';
+            for (let i = 1; i <= numFields; i++) {
+                let div = document.createElement('div');
+                let name = 'share-input-' + i;
+                div.innerHTML = `<label for="${name}"> Share ${i} </label> <input class="share-input" type="text" name="${name}" id="${name}"></input>`
+                doc.append(div);
+            }
+                let but = document.createElement('div');
+                but.innerHTML = '<button type="button" onclick="decryptSecret()">Decrypt</button>'
+                doc.append(but);
+            
+        }
+        function decryptSecret() {
+            let shares = []
+            for (i of document.getElementsByClassName('share-input')) {
+                if (i.value) {
+                    shares.push(i.value);
+                }
+            }
+            let data = { shares: shares };
+            const response = fetch('http://localhost:3000/decrypt', {
+                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                mode: 'cors', // no-cors, *cors, same-origin
+                cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: 'same-origin', // include, *same-origin, omit
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                redirect: 'follow',
+                referrerPolicy: 'no-referrer',
+                body: JSON.stringify(data)
+            }).then(data => {
+                // console.log(data.json())
+                data.json().then(resp => {
+                    document.getElementById('secret').innerHTML = resp.secret;
+                    // document.getElementById('shares').innerHTML = '';
+                    // let doc = document.getElementById('shares');
+                    // console.log(resp);
+                    // let div=document.createElement('div');
+                    // div.innerHTML="<p>Secret is "+resp.secret+"</p>";
+                    // doc.append(div);
+                    // for (datum of resp.shares) {
+                    //     let div = document.createElement('div');
+                    //     div.innerHTML = `<div><p>${datum[0]},${datum[1]}</p></div>`;
+                    //     doc.append(div);
+                    // }
+                })
+
+            });
+        }
+        function fetchShares() {
+            let minimum = +document.getElementById('minimum-f').value;
+            let shares = +document.getElementById('shares-f').value;
+            let data = { minimum: minimum, shares: shares };
+            const response = fetch('http://localhost:3000/encrypt', {
+                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                mode: 'cors', // no-cors, *cors, same-origin
+                cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: 'same-origin', // include, *same-origin, omit
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                redirect: 'follow',
+                referrerPolicy: 'no-referrer',
+                body: JSON.stringify(data)
+            }).then(data => {
+                // console.log(data.json())
+                data.json().then(resp => {
+
+                    document.getElementById('shares').innerHTML = '';
+                    let doc = document.getElementById('shares');
+                    console.log(resp);
+                    let div = document.createElement('div');
+                    div.innerHTML = "<p>Secret is " + resp.secret + "</p>";
+                    doc.append(div);
+                    for (datum of resp.shares) {
+                        let div = document.createElement('div');
+                        let sp = document.createElement('span');
+                        div.append(sp);
+                        sp.innerHTML = `${datum[0]},${datum[1]}`;
+                        doc.append(div);
+                        sp.onclick = function () {
+                            document.execCommand("copy");
+                        }
+
+                        sp.addEventListener("copy", function (event) {
+                            event.preventDefault();
+                            if (event.clipboardData) {
+                                event.clipboardData.setData("text/plain", sp.textContent);
+                                console.log(event.clipboardData.getData("text"))
+                            }
+                        });
+                    }
+                })
+            });
+            ;
+        }
+    </script>
+</head>
+
+<body>
+    <div class="tab">
+        <button class="tablinks active" onclick="openCity(event, 'Encrypt')">Encrypt</button>
+        <button class="tablinks" onclick="openCity(event, 'Decrypt')">Decrypt</button>
+    </div>
+    <!-- Tab content -->
+    <div id="Encrypt" style="display:block;" class="tabcontent">
+        <h3>Encrypt</h3>
+        <p>Enter total number of shares and the minimum number of shares required.</p>
+        <form>
+            <label for="minimum" style="min-width: 150px;display: inline-block;">Minimum:</label>
+            <input type="text" id="minimum-f" name="minimum"></input><br />
+            <label for="shares" style="min-width: 150px;display: inline-block;">Shares : </label>
+            <input type="text" id="shares-f" name="shares"></input><br />
+            <button type="button" onclick="fetchShares()">Submit</button>
+        </form>
+        <div id="shares">
+
+        </div>
+    </div>
+
+    <div id="Decrypt" class="tabcontent">
+        <h3>Decrypt</h3>
+        <p>Enter number of shares to be used for decrypting</p>
+        <form>
+            <label for="num-shares" style="min-width: 150px;display: inline-block;">Number of Shares : </label>
+            <input type="text" id="num-shares-d" name="num-shares"></input><br />
+            <button type="button" onclick="populateInputFields()">Submit</button>
+        </form>
+        <div id="share-inputs">
+
+        </div>
+        <p id="secret"></p>
+    </div>
+
+    <style>
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+        }
+
+        /* Style the buttons that are used to open the tab content */
+        .tab button {
+            background-color: inherit;
+            width: 50%;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+        }
+
+        /* Change background color of buttons on hover */
+        .tab button:hover {
+            background-color: #ddd;
+        }
+
+        /* Create an active/current tablink class */
+        .tab button.active {
+            background-color: #ccc;
+        }
+
+        /* Style the tab content */
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+    </style>
+    <script>
+    </script>
+</body>
+
+</html>

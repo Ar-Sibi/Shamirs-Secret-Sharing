@@ -12,8 +12,10 @@ const decrypt=(req,res,next)=>{
     let xp=[]
     let yp=[]
     for(share of shares){
-        xp.push(bigInt(share[0]));
-        yp.push(bigInt(share[1]));
+        
+        share=share.split(',');
+        xp.push(bigInt(share[0].trim()));
+        yp.push(bigInt(share[1].trim()));
     }
     res.jsonp({'secret':shamir.retreivefromShares(bigInt(0),xp,yp,bigInt(2).pow(127).subtract(1))})
 }

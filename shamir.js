@@ -21,7 +21,7 @@ function eval_at(poly, x, prime){
 }
 let generate_keys=(minimum,shares,prime=p)=>{
     if (minimum > shares)
-        throw new ValueError("Pool secret would be irrecoverable.")
+        throw new Error("Pool secret would be irrecoverable.")
     let poly = [...Array(minimum).keys()].map(v=>generateBigRandom(prime));
     let points = [...Array(shares).keys()].map(v=>bigInt(v+1)).map(i=> [i, eval_at(poly.map(v=>v), i, prime)]);
     return {'secret':poly[0], shares:points}
